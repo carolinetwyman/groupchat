@@ -1,0 +1,13 @@
+# Ignore system files
+.DS_Store
+
+# Ignore Python cache
+__pycache__/
+
+# Ignore media directories
+data/
+
+.env
+
+# ignore data backup
+messenger_data_backup.dump

@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "Johnbo Walter Stockwell", "label": "Johnbo Walter Stockwell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Bruce Kesselring", "label": "Bruce Kesselring", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Caroline Twyman", "label": "Caroline Twyman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ian Erickson", "label": "Ian Erickson", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jonah Eggleston", "label": "Jonah Eggleston", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kristi Durkin", "label": "Kristi Durkin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Mitchell Potts", "label": "Mitchell Potts", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sophia Marmalade", "label": "Sophia Marmalade", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Richie Owens", "label": "Richie Owens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Joey D Bednarski", "label": "Joey D Bednarski", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Henry Toups", "label": "Henry Toups", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sam Otter", "label": "Sam Otter", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Kerry Stevens", "label": "Kerry Stevens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Maddie Daviss", "label": "Maddie Daviss", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Ian Molnar", "label": "Ian Molnar", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Aaron Klopfer", "label": "Aaron Klopfer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Anthony Siraguse", "label": "Anthony Siraguse", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Aaron Klinger", "label": "Aaron Klinger", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Donni Saphire", "label": "Donni Saphire", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Naomi Spungen", "label": "Naomi Spungen", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Cameron Gillette", "label": "Cameron Gillette", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Adrienne Stout", "label": "Adrienne Stout", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Luke Ipsum", "label": "Luke Ipsum", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Andrew Shankland", "label": "Andrew Shankland", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Sam Dicke", "label": "Sam Dicke", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jeff Braun", "label": "Jeff Braun", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Matty Merritt", "label": "Matty Merritt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Julia Rettig", "label": "Julia Rettig", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Jonathan Dunne", "label": "Jonathan Dunne", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Alex Berr", "label": "Alex Berr", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Meg Mc", "label": "Meg Mc", "shape": "dot", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Brook Whitehead", "label": "Brook Whitehead", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "Johnbo Walter Stockwell", "to": "Bruce Kesselring", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Caroline Twyman", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Ian Erickson", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Jonah Eggleston", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Kristi Durkin", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Mitchell Potts", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Sophia Marmalade", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Richie Owens", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Joey D Bednarski", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Henry Toups", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Sam Otter", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Kerry Stevens", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Maddie Daviss", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Ian Molnar", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Aaron Klopfer", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Anthony Siraguse", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Aaron Klinger", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Donni Saphire", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Naomi Spungen", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Cameron Gillette", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Adrienne Stout", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Luke Ipsum", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Andrew Shankland", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Sam Dicke", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Jeff Braun", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Matty Merritt", "width": 1}, {"from": "Johnbo Walter Stockwell", "to": "Julia Rettig", "width": 1}, {"from": "Bruce Kesselring", "to": "Caroline Twyman", "width": 1}, {"from": "Bruce Kesselring", "to": "Aaron Klinger", "width": 1}, {"from": "Bruce Kesselring", "to": "Ian Molnar", "width": 1}, {"from": "Bruce Kesselring", "to": "Jonah Eggleston", "width": 1}, {"from": "Bruce Kesselring", "to": "Ian Erickson", "width": 1}, {"from": "Bruce Kesselring", "to": "Joey D Bednarski", "width": 1}, {"from": "Bruce Kesselring", "to": "Anthony Siraguse", "width": 1}, {"from": "Bruce Kesselring", "to": "Kristi Durkin", "width": 1}, {"from": "Bruce Kesselring", "to": "Richie Owens", "width": 1}, {"from": "Bruce Kesselring", "to": "Aaron Klopfer", "width": 1}, {"from": "Bruce Kesselring", "to": "Sophia Marmalade", "width": 1}, {"from": "Bruce Kesselring", "to": "Cameron Gillette", "width": 1}, {"from": "Bruce Kesselring", "to": "Mitchell Potts", "width": 1}, {"from": "Bruce Kesselring", "to": "Adrienne Stout", "width": 1}, {"from": "Bruce Kesselring", "to": "Kerry Stevens", "width": 1}, {"from": "Bruce Kesselring", "to": "Luke Ipsum", "width": 1}, {"from": "Bruce Kesselring", "to": "Andrew Shankland", "width": 1}, {"from": "Bruce Kesselring", "to": "Sam Otter", "width": 1}, {"from": "Bruce Kesselring", "to": "Maddie Daviss", "width": 1}, {"from": "Bruce Kesselring", "to": "Julia Rettig", "width": 1}, {"from": "Bruce Kesselring", "to": "Sam Dicke", "width": 1}, {"from": "Bruce Kesselring", "to": "Henry Toups", "width": 1}, {"from": "Bruce Kesselring", "to": "Jonathan Dunne", "width": 1}, {"from": "Bruce Kesselring", "to": "Jeff Braun", "width": 1}, {"from": "Caroline Twyman", "to": "Ian Erickson", "width": 1}, {"from": "Caroline Twyman", "to": "Aaron Klinger", "width": 1}, {"from": "Caroline Twyman", "to": "Joey D Bednarski", "width": 1}, {"from": "Caroline Twyman", "to": "Kristi Durkin", "width": 1}, {"from": "Caroline Twyman", "to": "Mitchell Potts", "width": 1}, {"from": "Caroline Twyman", "to": "Anthony Siraguse", "width": 1}, {"from": "Caroline Twyman", "to": "Sophia Marmalade", "width": 1}, {"from": "Caroline Twyman", "to": "Aaron Klopfer", "width": 1}, {"from": "Caroline Twyman", "to": "Sam Dicke", "width": 1}, {"from": "Caroline Twyman", "to": "Ian Molnar", "width": 1}, {"from": "Caroline Twyman", "to": "Cameron Gillette", "width": 1}, {"from": "Caroline Twyman", "to": "Richie Owens", "width": 1}, {"from": "Caroline Twyman", "to": "Jonah Eggleston", "width": 1}, {"from": "Caroline Twyman", "to": "Adrienne Stout", "width": 1}, {"from": "Caroline Twyman", "to": "Donni Saphire", "width": 1}, {"from": "Caroline Twyman", "to": "Naomi Spungen", "width": 1}, {"from": "Caroline Twyman", "to": "Henry Toups", "width": 1}, {"from": "Caroline Twyman", "to": "Julia Rettig", "width": 1}, {"from": "Caroline Twyman", "to": "Sam Otter", "width": 1}, {"from": "Caroline Twyman", "to": "Luke Ipsum", "width": 1}, {"from": "Caroline Twyman", "to": "Kerry Stevens", "width": 1}, {"from": "Caroline Twyman", "to": "Maddie Daviss", "width": 1}, {"from": "Caroline Twyman", "to": "Jeff Braun", "width": 1}, {"from": "Caroline Twyman", "to": "Matty Merritt", "width": 1}, {"from": "Ian Erickson", "to": "Anthony Siraguse", "width": 1}, {"from": "Ian Erickson", "to": "Aaron Klinger", "width": 1}, {"from": "Ian Erickson", "to": "Kristi Durkin", "width": 1}, {"from": "Ian Erickson", "to": "Mitchell Potts", "width": 1}, {"from": "Ian Erickson", "to": "Henry Toups", "width": 1}, {"from": "Ian Erickson", "to": "Andrew Shankland", "width": 1}, {"from": "Ian Erickson", "to": "Richie Owens", "width": 1}, {"from": "Ian Erickson", "to": "Adrienne Stout", "width": 1}, {"from": "Ian Erickson", "to": "Sam Dicke", "width": 1}, {"from": "Ian Erickson", "to": "Sophia Marmalade", "width": 1}, {"from": "Ian Erickson", "to": "Cameron Gillette", "width": 1}, {"from": "Ian Erickson", "to": "Kerry Stevens", "width": 1}, {"from": "Ian Erickson", "to": "Aaron Klopfer", "width": 1}, {"from": "Ian Erickson", "to": "Maddie Daviss", "width": 1}, {"from": "Ian Erickson", "to": "Joey D Bednarski", "width": 1}, {"from": "Ian Erickson", "to": "Donni Saphire", "width": 1}, {"from": "Ian Erickson", "to": "Ian Molnar", "width": 1}, {"from": "Ian Erickson", "to": "Jeff Braun", "width": 1}, {"from": "Ian Erickson", "to": "Jonah Eggleston", "width": 1}, {"from": "Ian Erickson", "to": "Matty Merritt", "width": 1}, {"from": "Ian Erickson", "to": "Naomi Spungen", "width": 1}, {"from": "Ian Erickson", "to": "Julia Rettig", "width": 1}, {"from": "Aaron Klinger", "to": "Anthony Siraguse", "width": 1}, {"from": "Aaron Klinger", "to": "Jonah Eggleston", "width": 1}, {"from": "Aaron Klinger", "to": "Mitchell Potts", "width": 1}, {"from": "Aaron Klinger", "to": "Kristi Durkin", "width": 1}, {"from": "Aaron Klinger", "to": "Sophia Marmalade", "width": 1}, {"from": "Aaron Klinger", "to": "Joey D Bednarski", "width": 1}, {"from": "Aaron Klinger", "to": "Henry Toups", "width": 1}, {"from": "Aaron Klinger", "to": "Adrienne Stout", "width": 1}, {"from": "Aaron Klinger", "to": "Luke Ipsum", "width": 1}, {"from": "Aaron Klinger", "to": "Aaron Klopfer", "width": 1}, {"from": "Aaron Klinger", "to": "Ian Molnar", "width": 1}, {"from": "Aaron Klinger", "to": "Richie Owens", "width": 1}, {"from": "Aaron Klinger", "to": "Naomi Spungen", "width": 1}, {"from": "Aaron Klinger", "to": "Donni Saphire", "width": 1}, {"from": "Aaron Klinger", "to": "Andrew Shankland", "width": 1}, {"from": "Aaron Klinger", "to": "Sam Otter", "width": 1}, {"from": "Aaron Klinger", "to": "Alex Berr", "width": 1}, {"from": "Aaron Klinger", "to": "Meg Mc", "width": 1}, {"from": "Aaron Klinger", "to": "Sam Dicke", "width": 1}, {"from": "Aaron Klinger", "to": "Maddie Daviss", "width": 1}, {"from": "Aaron Klinger", "to": "Jeff Braun", "width": 1}, {"from": "Aaron Klinger", "to": "Kerry Stevens", "width": 1}, {"from": "Aaron Klinger", "to": "Cameron Gillette", "width": 1}, {"from": "Aaron Klinger", "to": "Julia Rettig", "width": 1}, {"from": "Joey D Bednarski", "to": "Mitchell Potts", "width": 1}, {"from": "Joey D Bednarski", "to": "Andrew Shankland", "width": 1}, {"from": "Joey D Bednarski", "to": "Sophia Marmalade", "width": 1}, {"from": "Joey D Bednarski", "to": "Sam Dicke", "width": 1}, {"from": "Joey D Bednarski", "to": "Anthony Siraguse", "width": 1}, {"from": "Joey D Bednarski", "to": "Richie Owens", "width": 1}, {"from": "Joey D Bednarski", "to": "Aaron Klopfer", "width": 1}, {"from": "Joey D Bednarski", "to": "Adrienne Stout", "width": 1}, {"from": "Joey D Bednarski", "to": "Sam Otter", "width": 1}, {"from": "Joey D Bednarski", "to": "Maddie Daviss", "width": 1}, {"from": "Joey D Bednarski", "to": "Kerry Stevens", "width": 1}, {"from": "Joey D Bednarski", "to": "Henry Toups", "width": 1}, {"from": "Joey D Bednarski", "to": "Ian Molnar", "width": 1}, {"from": "Joey D Bednarski", "to": "Jonah Eggleston", "width": 1}, {"from": "Joey D Bednarski", "to": "Donni Saphire", "width": 1}, {"from": "Joey D Bednarski", "to": "Luke Ipsum", "width": 1}, {"from": "Joey D Bednarski", "to": "Kristi Durkin", "width": 1}, {"from": "Joey D Bednarski", "to": "Cameron Gillette", "width": 1}, {"from": "Joey D Bednarski", "to": "Jonathan Dunne", "width": 1}, {"from": "Joey D Bednarski", "to": "Jeff Braun", "width": 1}, {"from": "Joey D Bednarski", "to": "Julia Rettig", "width": 1}, {"from": "Joey D Bednarski", "to": "Alex Berr", "width": 1}, {"from": "Kristi Durkin", "to": "Anthony Siraguse", "width": 1}, {"from": "Kristi Durkin", "to": "Adrienne Stout", "width": 1}, {"from": "Kristi Durkin", "to": "Aaron Klopfer", "width": 1}, {"from": "Kristi Durkin", "to": "Jonah Eggleston", "width": 1}, {"from": "Kristi Durkin", "to": "Sophia Marmalade", "width": 1}, {"from": "Kristi Durkin", "to": "Mitchell Potts", "width": 1}, {"from": "Kristi Durkin", "to": "Sam Otter", "width": 1}, {"from": "Kristi Durkin", "to": "Sam Dicke", "width": 1}, {"from": "Kristi Durkin", "to": "Richie Owens", "width": 1}, {"from": "Kristi Durkin", "to": "Jeff Braun", "width": 1}, {"from": "Kristi Durkin", "to": "Andrew Shankland", "width": 1}, {"from": "Kristi Durkin", "to": "Luke Ipsum", "width": 1}, {"from": "Kristi Durkin", "to": "Jonathan Dunne", "width": 1}, {"from": "Kristi Durkin", "to": "Cameron Gillette", "width": 1}, {"from": "Kristi Durkin", "to": "Maddie Daviss", "width": 1}, {"from": "Kristi Durkin", "to": "Kerry Stevens", "width": 1}, {"from": "Anthony Siraguse", "to": "Mitchell Potts", "width": 1}, {"from": "Anthony Siraguse", "to": "Sophia Marmalade", "width": 1}, {"from": "Anthony Siraguse", "to": "Aaron Klopfer", "width": 1}, {"from": "Anthony Siraguse", "to": "Richie Owens", "width": 1}, {"from": "Anthony Siraguse", "to": "Adrienne Stout", "width": 1}, {"from": "Anthony Siraguse", "to": "Cameron Gillette", "width": 1}, {"from": "Anthony Siraguse", "to": "Andrew Shankland", "width": 1}, {"from": "Anthony Siraguse", "to": "Sam Dicke", "width": 1}, {"from": "Anthony Siraguse", "to": "Maddie Daviss", "width": 1}, {"from": "Anthony Siraguse", "to": "Henry Toups", "width": 1}, {"from": "Anthony Siraguse", "to": "Ian Molnar", "width": 1}, {"from": "Anthony Siraguse", "to": "Jonah Eggleston", "width": 1}, {"from": "Anthony Siraguse", "to": "Donni Saphire", "width": 1}, {"from": "Anthony Siraguse", "to": "Naomi Spungen", "width": 1}, {"from": "Anthony Siraguse", "to": "Kerry Stevens", "width": 1}, {"from": "Anthony Siraguse", "to": "Jeff Braun", "width": 1}, {"from": "Anthony Siraguse", "to": "Luke Ipsum", "width": 1}, {"from": "Anthony Siraguse", "to": "Matty Merritt", "width": 1}, {"from": "Anthony Siraguse", "to": "Julia Rettig", "width": 1}, {"from": "Sophia Marmalade", "to": "Mitchell Potts", "width": 1}, {"from": "Sophia Marmalade", "to": "Richie Owens", "width": 1}, {"from": "Sophia Marmalade", "to": "Aaron Klopfer", "width": 1}, {"from": "Sophia Marmalade", "to": "Cameron Gillette", "width": 1}, {"from": "Sophia Marmalade", "to": "Adrienne Stout", "width": 1}, {"from": "Sophia Marmalade", "to": "Ian Molnar", "width": 1}, {"from": "Sophia Marmalade", "to": "Kerry Stevens", "width": 1}, {"from": "Sophia Marmalade", "to": "Sam Otter", "width": 1}, {"from": "Sophia Marmalade", "to": "Sam Dicke", "width": 1}, {"from": "Sophia Marmalade", "to": "Jonah Eggleston", "width": 1}, {"from": "Sophia Marmalade", "to": "Maddie Daviss", "width": 1}, {"from": "Sophia Marmalade", "to": "Luke Ipsum", "width": 1}, {"from": "Sophia Marmalade", "to": "Donni Saphire", "width": 1}, {"from": "Sophia Marmalade", "to": "Henry Toups", "width": 1}, {"from": "Mitchell Potts", "to": "Adrienne Stout", "width": 1}, {"from": "Mitchell Potts", "to": "Jeff Braun", "width": 1}, {"from": "Mitchell Potts", "to": "Andrew Shankland", "width": 1}, {"from": "Mitchell Potts", "to": "Cameron Gillette", "width": 1}, {"from": "Mitchell Potts", "to": "Aaron Klopfer", "width": 1}, {"from": "Mitchell Potts", "to": "Jonah Eggleston", "width": 1}, {"from": "Mitchell Potts", "to": "Kerry Stevens", "width": 1}, {"from": "Mitchell Potts", "to": "Luke Ipsum", "width": 1}, {"from": "Mitchell Potts", "to": "Sam Otter", "width": 1}, {"from": "Mitchell Potts", "to": "Henry Toups", "width": 1}, {"from": "Mitchell Potts", "to": "Ian Molnar", "width": 1}, {"from": "Mitchell Potts", "to": "Richie Owens", "width": 1}, {"from": "Mitchell Potts", "to": "Donni Saphire", "width": 1}, {"from": "Mitchell Potts", "to": "Julia Rettig", "width": 1}, {"from": "Mitchell Potts", "to": "Meg Mc", "width": 1}, {"from": "Mitchell Potts", "to": "Sam Dicke", "width": 1}, {"from": "Mitchell Potts", "to": "Maddie Daviss", "width": 1}, {"from": "Mitchell Potts", "to": "Matty Merritt", "width": 1}, {"from": "Mitchell Potts", "to": "Naomi Spungen", "width": 1}, {"from": "Richie Owens", "to": "Andrew Shankland", "width": 1}, {"from": "Richie Owens", "to": "Maddie Daviss", "width": 1}, {"from": "Richie Owens", "to": "Kerry Stevens", "width": 1}, {"from": "Richie Owens", "to": "Sam Otter", "width": 1}, {"from": "Richie Owens", "to": "Adrienne Stout", "width": 1}, {"from": "Richie Owens", "to": "Ian Molnar", "width": 1}, {"from": "Richie Owens", "to": "Aaron Klopfer", "width": 1}, {"from": "Richie Owens", "to": "Donni Saphire", "width": 1}, {"from": "Richie Owens", "to": "Henry Toups", "width": 1}, {"from": "Richie Owens", "to": "Jonah Eggleston", "width": 1}, {"from": "Richie Owens", "to": "Cameron Gillette", "width": 1}, {"from": "Richie Owens", "to": "Julia Rettig", "width": 1}, {"from": "Richie Owens", "to": "Alex Berr", "width": 1}, {"from": "Richie Owens", "to": "Matty Merritt", "width": 1}, {"from": "Richie Owens", "to": "Jeff Braun", "width": 1}, {"from": "Richie Owens", "to": "Sam Dicke", "width": 1}, {"from": "Richie Owens", "to": "Luke Ipsum", "width": 1}, {"from": "Andrew Shankland", "to": "Henry Toups", "width": 1}, {"from": "Andrew Shankland", "to": "Luke Ipsum", "width": 1}, {"from": "Andrew Shankland", "to": "Jonah Eggleston", "width": 1}, {"from": "Andrew Shankland", "to": "Adrienne Stout", "width": 1}, {"from": "Andrew Shankland", "to": "Sam Otter", "width": 1}, {"from": "Andrew Shankland", "to": "Sam Dicke", "width": 1}, {"from": "Andrew Shankland", "to": "Ian Molnar", "width": 1}, {"from": "Andrew Shankland", "to": "Donni Saphire", "width": 1}, {"from": "Andrew Shankland", "to": "Aaron Klopfer", "width": 1}, {"from": "Andrew Shankland", "to": "Kerry Stevens", "width": 1}, {"from": "Andrew Shankland", "to": "Maddie Daviss", "width": 1}, {"from": "Andrew Shankland", "to": "Jeff Braun", "width": 1}, {"from": "Andrew Shankland", "to": "Cameron Gillette", "width": 1}, {"from": "Aaron Klopfer", "to": "Cameron Gillette", "width": 1}, {"from": "Aaron Klopfer", "to": "Sam Otter", "width": 1}, {"from": "Aaron Klopfer", "to": "Sam Dicke", "width": 1}, {"from": "Aaron Klopfer", "to": "Ian Molnar", "width": 1}, {"from": "Aaron Klopfer", "to": "Donni Saphire", "width": 1}, {"from": "Aaron Klopfer", "to": "Luke Ipsum", "width": 1}, {"from": "Aaron Klopfer", "to": "Adrienne Stout", "width": 1}, {"from": "Aaron Klopfer", "to": "Henry Toups", "width": 1}, {"from": "Aaron Klopfer", "to": "Jonah Eggleston", "width": 1}, {"from": "Aaron Klopfer", "to": "Alex Berr", "width": 1}, {"from": "Aaron Klopfer", "to": "Kerry Stevens", "width": 1}, {"from": "Aaron Klopfer", "to": "Maddie Daviss", "width": 1}, {"from": "Aaron Klopfer", "to": "Jeff Braun", "width": 1}, {"from": "Aaron Klopfer", "to": "Matty Merritt", "width": 1}, {"from": "Aaron Klopfer", "to": "Julia Rettig", "width": 1}, {"from": "Sam Dicke", "to": "Adrienne Stout", "width": 1}, {"from": "Sam Dicke", "to": "Kerry Stevens", "width": 1}, {"from": "Sam Dicke", "to": "Ian Molnar", "width": 1}, {"from": "Sam Dicke", "to": "Henry Toups", "width": 1}, {"from": "Sam Dicke", "to": "Luke Ipsum", "width": 1}, {"from": "Sam Dicke", "to": "Brook Whitehead", "width": 1}, {"from": "Sam Dicke", "to": "Maddie Daviss", "width": 1}, {"from": "Sam Dicke", "to": "Jeff Braun", "width": 1}, {"from": "Sam Dicke", "to": "Jonah Eggleston", "width": 1}, {"from": "Sam Otter", "to": "Adrienne Stout", "width": 1}, {"from": "Sam Otter", "to": "Maddie Daviss", "width": 1}, {"from": "Sam Otter", "to": "Kerry Stevens", "width": 1}, {"from": "Sam Otter", "to": "Henry Toups", "width": 1}, {"from": "Sam Otter", "to": "Luke Ipsum", "width": 1}, {"from": "Sam Otter", "to": "Jeff Braun", "width": 1}, {"from": "Sam Otter", "to": "Cameron Gillette", "width": 1}, {"from": "Sam Otter", "to": "Jonah Eggleston", "width": 1}, {"from": "Sam Otter", "to": "Matty Merritt", "width": 1}, {"from": "Cameron Gillette", "to": "Adrienne Stout", "width": 1}, {"from": "Cameron Gillette", "to": "Julia Rettig", "width": 1}, {"from": "Cameron Gillette", "to": "Jonah Eggleston", "width": 1}, {"from": "Cameron Gillette", "to": "Henry Toups", "width": 1}, {"from": "Cameron Gillette", "to": "Matty Merritt", "width": 1}, {"from": "Cameron Gillette", "to": "Maddie Daviss", "width": 1}, {"from": "Cameron Gillette", "to": "Kerry Stevens", "width": 1}, {"from": "Maddie Daviss", "to": "Kerry Stevens", "width": 1}, {"from": "Maddie Daviss", "to": "Adrienne Stout", "width": 1}, {"from": "Maddie Daviss", "to": "Ian Molnar", "width": 1}, {"from": "Maddie Daviss", "to": "Jonah Eggleston", "width": 1}, {"from": "Maddie Daviss", "to": "Jeff Braun", "width": 1}, {"from": "Maddie Daviss", "to": "Luke Ipsum", "width": 1}, {"from": "Maddie Daviss", "to": "Jonathan Dunne", "width": 1}, {"from": "Maddie Daviss", "to": "Henry Toups", "width": 1}, {"from": "Maddie Daviss", "to": "Matty Merritt", "width": 1}, {"from": "Kerry Stevens", "to": "Adrienne Stout", "width": 1}, {"from": "Kerry Stevens", "to": "Jeff Braun", "width": 1}, {"from": "Kerry Stevens", "to": "Luke Ipsum", "width": 1}, {"from": "Kerry Stevens", "to": "Jonah Eggleston", "width": 1}, {"from": "Kerry Stevens", "to": "Matty Merritt", "width": 1}, {"from": "Henry Toups", "to": "Adrienne Stout", "width": 1}, {"from": "Henry Toups", "to": "Naomi Spungen", "width": 1}, {"from": "Henry Toups", "to": "Jonah Eggleston", "width": 1}, {"from": "Henry Toups", "to": "Jeff Braun", "width": 1}, {"from": "Ian Molnar", "to": "Adrienne Stout", "width": 1}, {"from": "Ian Molnar", "to": "Donni Saphire", "width": 1}, {"from": "Ian Molnar", "to": "Jonah Eggleston", "width": 1}, {"from": "Ian Molnar", "to": "Luke Ipsum", "width": 1}, {"from": "Donni Saphire", "to": "Adrienne Stout", "width": 1}, {"from": "Donni Saphire", "to": "Naomi Spungen", "width": 1}, {"from": "Donni Saphire", "to": "Luke Ipsum", "width": 1}, {"from": "Donni Saphire", "to": "Jeff Braun", "width": 1}, {"from": "Naomi Spungen", "to": "Adrienne Stout", "width": 1}, {"from": "Naomi Spungen", "to": "Luke Ipsum", "width": 1}, {"from": "Naomi Spungen", "to": "Jonah Eggleston", "width": 1}, {"from": "Naomi Spungen", "to": "Jeff Braun", "width": 1}, {"from": "Naomi Spungen", "to": "Julia Rettig", "width": 1}, {"from": "Jonah Eggleston", "to": "Luke Ipsum", "width": 1}, {"from": "Jonah Eggleston", "to": "Julia Rettig", "width": 1}, {"from": "Jonah Eggleston", "to": "Adrienne Stout", "width": 1}, {"from": "Jonah Eggleston", "to": "Jeff Braun", "width": 1}, {"from": "Jonah Eggleston", "to": "Matty Merritt", "width": 1}, {"from": "Adrienne Stout", "to": "Jonathan Dunne", "width": 1}, {"from": "Adrienne Stout", "to": "Jeff Braun", "width": 1}, {"from": "Adrienne Stout", "to": "Alex Berr", "width": 1}, {"from": "Adrienne Stout", "to": "Luke Ipsum", "width": 1}, {"from": "Adrienne Stout", "to": "Meg Mc", "width": 1}, {"from": "Adrienne Stout", "to": "Julia Rettig", "width": 1}, {"from": "Luke Ipsum", "to": "Jeff Braun", "width": 1}, {"from": "Jeff Braun", "to": "Julia Rettig", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
