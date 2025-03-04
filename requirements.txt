@@ -1,5 +1,6 @@
 streamlit
 pandas
+python3
 matplotlib
 wordcloud
 plotly
