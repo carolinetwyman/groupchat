@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: streamlit_user
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: messenger_data
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  streamlit_app:
+    build: .
+    restart: always
+    ports:
+      - "8501:8501"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_NAME: "messenger_data"
+      DB_USER: "streamlit_user"
+      DB_PASSWORD: "securepassword"
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
