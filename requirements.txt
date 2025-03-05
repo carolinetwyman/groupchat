@@ -4,14 +4,12 @@ matplotlib
 wordcloud
 plotly
 seaborn
-datetime
 streamlit_visgraph
-json
 numpy
-os
 textblob
 networkx
 pyvis
-collections
 emoji
 pydub
+psycopg2-binary
+python-dotenv
