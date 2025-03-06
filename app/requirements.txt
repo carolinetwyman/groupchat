@@ -4,5 +4,12 @@ matplotlib
 wordcloud
 plotly
 seaborn
-mpl_toolkits
-datetime
+streamlit_visgraph
+numpy
+textblob
+networkx
+pyvis
+emoji
+pydub
+psycopg2-binary
+python-dotenv
