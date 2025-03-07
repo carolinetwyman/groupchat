@@ -20,12 +20,6 @@ services:
       - "8501:8501"
     depends_on:
       - postgres
-    environment:
-      DB_HOST: "groupchat-db-production.up.railway.app"
-      DB_PORT: "5432"
-      DB_NAME: "messenger_data"
-      DB_USER: "streamlit_user"
-      DB_PASSWORD: "securepassword"
     networks:
       - backend
 
