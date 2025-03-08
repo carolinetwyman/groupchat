@@ -174,6 +174,10 @@ import os
 from datetime import datetime, date
 from dotenv import load_dotenv
 
+if not st.session_state.authenticated:
+    st.warning("🔒 You must sign in to view this section.")
+    st.stop()
+
 # Load environment variables
 load_dotenv()
 

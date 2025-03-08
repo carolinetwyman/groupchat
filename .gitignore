@@ -11,3 +11,5 @@ data/
 
 # ignore data backup
 messenger_data_backup.dump
+
+secret.json

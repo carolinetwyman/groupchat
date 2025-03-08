@@ -1,8 +1,6 @@
 import streamlit as st
 import requests
-import webbrowser
 
-# Set Page Config
 st.set_page_config(page_title="Messenger Chat Analysis", layout="wide")
 
 st.title("💬 Messenger Chat Analysis")
@@ -11,17 +9,14 @@ st.subheader("Explore your Messenger conversations with insane visualizations! �
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-
 def authenticate_oauth(provider):
-    auth_url = "http://127.0.0.1:5000/api/auth/google" # ✅ Redirect through Flask backend
-    st.success("Redirecting to Google Sign-In...")
-    webbrowser.open(auth_url)  # ✅ Open the authentication link in the browser
-    st.info("Waiting for authentication... Please complete the sign-in process in your browser.")
-
+    auth_url = f"http://127.0.0.1:5000/api/auth/{provider}"
+    st.success(f"{provider.capitalize()} OAuth initiated. Please complete sign-in in the new window.")
+    st.experimental_set_query_params(auth_provider=provider)
+    st.experimental_rerun()
 
 if not st.session_state.authenticated:
     st.title("🔑 Sign In to Messenger Chat Analysis")
-    
     st.markdown("### Choose a sign-in method:")
     col1, col2 = st.columns(2)
 
@@ -33,20 +28,20 @@ if not st.session_state.authenticated:
         if st.button("Sign in with GitHub"):
             authenticate_oauth("github")
 
-    # ✅ Corrected Query Parameter Handling
-if not st.session_state.authenticated:
-    # Check if user is already authenticated in Flask
-    try:
-        response = requests.get("http://127.0.0.1:5000/api/auth/status")  # Check authentication status
+    query_params = st.experimental_get_query_params()
+    if "auth_provider" in query_params:
+        provider = query_params["auth_provider"][0]
+        response = requests.get(f"http://127.0.0.1:5000/api/auth/status")
         if response.status_code == 200:
-            user_data = response.json()
-            st.success(f"Signed in as {user_data.get('email', 'Unknown User')}")
             st.session_state.authenticated = True
-    except requests.exceptions.ConnectionError:
-        st.error("Error connecting to authentication service.")
+            st.success(f"Signed in successfully using {provider.capitalize()}!")
+            st.experimental_rerun()  # Rerun the app to update the session state
+        else:
+            st.error("Authentication failed. Please try again.")
+    
+    st.stop()  # Stop rendering dashboard until login is successful
 
 st.write("Select a page from the sidebar to begin exploring!")
-
 
 # Navigation buttons
 st.markdown("### 🔍 Explore Data")
