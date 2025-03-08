@@ -74,13 +74,6 @@ date_range = st.sidebar.date_input("Select date range", [start_date, end_date])
 # Fetch filtered data
 df_filtered = fetch_messages(date_range[0], date_range[1])
 
-# 🔹 Display Messages DataFrame
-st.subheader("📝 Messages Data")
-if not df_filtered.empty:
-    st.dataframe(df_filtered[['sender_name', 'content', 'message_timestamp']])
-else:
-    st.warning("⚠️ No messages found in the selected date range.")
-
 # 🔹 Sentiment Analysis
 st.subheader("📉 Sentiment Analysis Over Time")
 
