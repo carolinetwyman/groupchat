@@ -275,13 +275,13 @@ end_date = df_init['message_timestamp'].max().date() if not df_init.empty else d
 
 date_range = st.sidebar.date_input("Select date range", [start_date, end_date])
 
-# Fetch filtered data
-df_filtered = fetch_messages(date_range[0], date_range[1])
+# # Fetch filtered data
+# df_filtered = fetch_messages(date_range[0], date_range[1])
 
-# Display Messages
-st.subheader("📝 Messages DataFrame")
-if not df_filtered.empty:
-    st.dataframe(df_filtered[['sender_name', 'content', 'message_timestamp']])
-    st.success("✅ Data loaded successfully!")
-else:
-    st.warning("⚠️ No messages found for the selected date range.")
+# # Display Messages
+# st.subheader("📝 Messages DataFrame")
+# if not df_filtered.empty:
+#     st.dataframe(df_filtered[['sender_name', 'content', 'message_timestamp']])
+#     st.success("✅ Data loaded successfully!")
+# else:
+#     st.warning("⚠️ No messages found for the selected date range.")
