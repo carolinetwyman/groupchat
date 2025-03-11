@@ -13,3 +13,4 @@ emoji
 pydub
 psycopg2-binary
 python-dotenv
+bcrypt
