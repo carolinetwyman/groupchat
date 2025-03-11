@@ -17,7 +17,7 @@ import emoji
 from collections import defaultdict
 
 # 🔹 Set Streamlit Page Configuration
-st.set_page_config(page_title="🎨 Messenger Chat Analysis", layout="wide")
+st.set_page_config(page_title="🎨 Groupchat Analysis", layout="wide")
 
 # 🔹 Custom Styling
 st.markdown(

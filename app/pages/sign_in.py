@@ -86,7 +86,7 @@ if "authenticated" not in st.session_state:
 
 # Authentication page
 if not st.session_state.authenticated:
-    st.title("🔑 Sign In to Messenger Chat Analysis")
+    st.title("🔑 Sign In to Groupchat Analysis")
 
     col1, col2 = st.columns(2)
 

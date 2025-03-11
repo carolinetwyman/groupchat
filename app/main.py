@@ -9,7 +9,7 @@ if "authenticated" not in st.session_state or not st.session_state.authenticated
     st.page_link("./pages/sign_in.py", label="🫥 Go to Sign In", icon="🫥")
     st.stop()
 
-st.subheader("Welcome to Messenger Chat Analysis!")
+st.subheader("Welcome to Groupchat Analysis!")
 st.write("Select a page from the sidebar to begin exploring!")
 
 # Navigation buttons

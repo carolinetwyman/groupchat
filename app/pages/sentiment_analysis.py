@@ -58,8 +58,8 @@ def fetch_messages(start_date=None, end_date=None):
     return df
 
 # 🔹 Streamlit UI Configuration
-st.set_page_config(page_title="🎨 Messenger Chat Analysis", layout="wide")
-st.title("📊 Messenger Chat Analysis")
+st.set_page_config(page_title="🎨 Groupchat Analysis", layout="wide")
+st.title("📊 Groupchat Analysis")
 
 # 🔹 Sidebar Filters
 st.sidebar.header("📅 Date Filters")
