@@ -1,7 +1,7 @@
 import streamlit as st
 
-st.set_page_config(page_title="Messenger Chat Analysis", layout="wide")
-st.title("💬 Messenger Chat Analysis")
+st.set_page_config(page_title="Groupchat Analysis", layout="wide")
+st.title("💬 Groupchat Analysis")
 
 # Ensure user is logged in
 if "authenticated" not in st.session_state or not st.session_state.authenticated:
