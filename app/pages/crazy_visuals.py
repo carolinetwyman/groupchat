@@ -8,7 +8,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-# 🔹 Load Environment Variables
+# Load Environment Variables
 load_dotenv()
 
 DB_CONFIG = {
@@ -27,7 +27,7 @@ def connect_db():
         st.error(f"❌ Database connection failed: {e}")
         return None
 
-# 🔹 Fetch Messages from Database
+# Fetch Messages from Database
 def fetch_messages(start_date=None, end_date=None):
     """ Fetch messages from PostgreSQL with optional date filtering. """
     conn = connect_db()
@@ -55,51 +55,83 @@ def fetch_messages(start_date=None, end_date=None):
     df = pd.read_sql(query, conn, params=params)
     conn.close()
 
-    # ✅ Ensure message_timestamp is converted properly
+    # Ensure message_timestamp is converted properly
     df["message_timestamp"] = pd.to_datetime(df["message_timestamp"], utc=True)
 
     return df
 
-# 🔹 Streamlit UI Configuration
+# Streamlit UI Configuration
 st.set_page_config(page_title="🎨 Visualizations", layout="wide")
 st.title("📊 Messenger Chat Visualizations")
 
-# 🔹 Sidebar Filters
+# Sidebar Filters
 st.sidebar.header("📅 Date Filters")
 
-# ✅ Fetch all data first (for date selection)
+# Fetch all data first (for date selection)
 df_all = fetch_messages()
 
-# ✅ Ensure data exists before applying filtering
+# Ensure data exists before applying filtering
 if not df_all.empty:
     min_date = df_all['message_timestamp'].min().date()
     max_date = df_all['message_timestamp'].max().date()
 else:
     min_date, max_date = datetime.today().date(), datetime.today().date()
 
-# ✅ Selectable date range (Set valid range)
+# Selectable date range (Set valid range)
 date_range = st.sidebar.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-# ✅ Convert selected dates to proper datetime format
+# Convert selected dates to proper datetime format
 start_datetime = datetime.combine(date_range[0], datetime.min.time()).replace(tzinfo=None)
 end_datetime = datetime.combine(date_range[1], datetime.max.time()).replace(tzinfo=None) + timedelta(seconds=1)
 
-# ✅ Fetch filtered messages
+# Fetch filtered messages
 df_filtered = fetch_messages(start_datetime, end_datetime)
 
-# 🔹 Messages Over Time
-st.subheader("📊 Messages Over Time")
-df_filtered['date'] = df_filtered['message_timestamp'].dt.date
-rolling_avg = df_filtered.groupby('date').size().rolling(7, min_periods=1).mean()
+def fetch_normalized_reactions():
+    """Fetch normalized reaction count per user."""
+    conn = connect_db()
+    if not conn:
+        return pd.DataFrame()
 
-fig, ax = plt.subplots()
-rolling_avg.plot(kind='line', ax=ax, color='red', linewidth=3)
-ax.set_title('Messages Over Time (Smoothed)')
-ax.set_xlabel('Date')
-ax.set_ylabel('Message Count')
-st.pyplot(fig)
+    query = """
+        SELECT 
+            p.name AS sender_name, 
+            COUNT(r.id) AS total_reactions,
+            COUNT(DISTINCT m.id) AS messages_with_reactions,
+            ROUND(COUNT(r.id) * 1.0 / NULLIF(COUNT(DISTINCT m.id), 0), 2) AS normalized_reactions
+        FROM messages m
+        JOIN participants p ON m.sender_id = p.id
+        JOIN reactions r ON m.id = r.message_id  -- Ensure only messages with reactions are counted
+        GROUP BY p.name
+        ORDER BY normalized_reactions DESC;
+    """
 
-# 🔥 Heatmap of Message Activity
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    return df
+
+st.title("📊 Bruce Quotient (Anthony Variant) - Reaction Normalization")
+
+# Fetch normalized reactions
+df_normalized_reactions = fetch_normalized_reactions()
+
+if not df_normalized_reactions.empty:
+    st.write("💡 **Users ranked by normalized reaction count per message:**")
+
+    # Display results
+    st.dataframe(df_normalized_reactions)
+
+    # 📊 **Bar Chart: Normalized Reactions Ranking**
+    fig = px.bar(df_normalized_reactions, x="sender_name", y="normalized_reactions",
+                 title="Normalized Reactions Per User",
+                 text_auto=True, color="normalized_reactions", color_continuous_scale="Blues")
+    st.plotly_chart(fig)
+
+else:
+    st.warning("⚠️ No valid messages with reactions found. Make sure the dataset contains reactions!")
+
+# Heatmap of Message Activity
 st.subheader("🔥 Heatmap of Messages Per Day/Hour")
 df_filtered['hour'] = df_filtered['message_timestamp'].dt.hour
 df_filtered['weekday'] = df_filtered['message_timestamp'].dt.day_name()
@@ -112,7 +144,7 @@ ax.set_xlabel("Hour of Day")
 ax.set_ylabel("Day of the Week")
 st.pyplot(fig)
 
-# 🌀 Reaction Distribution
+# Reaction Distribution
 st.subheader("🌀 Reaction Distribution Per User")
 
 def fetch_reactions():
@@ -242,5 +274,17 @@ fig = px.bar(comparison_df, x="Word Count", y="Author", orientation="h",
              title="Chat Word Count vs. Famous Authors", text_auto=True,
              color="Word Count", color_continuous_scale="blues")
 st.plotly_chart(fig)
+
+# Messages Over Time
+st.subheader("📊 Messages Over Time")
+df_filtered['date'] = df_filtered['message_timestamp'].dt.date
+rolling_avg = df_filtered.groupby('date').size().rolling(7, min_periods=1).mean()
+
+fig, ax = plt.subplots()
+rolling_avg.plot(kind='line', ax=ax, color='red', linewidth=3)
+ax.set_title('Messages Over Time (Smoothed)')
+ax.set_xlabel('Date')
+ax.set_ylabel('Message Count')
+st.pyplot(fig)
 
 st.success("✅ Visualizations loaded!")
