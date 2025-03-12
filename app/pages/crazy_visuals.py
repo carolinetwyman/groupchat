@@ -1,32 +1,11 @@
 import streamlit as st
 import pandas as pd
-import json
-import os
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly.express as px
-import seaborn as sns
-from wordcloud import WordCloud
-from datetime import datetime
-from textblob import TextBlob
-import networkx as nx
-from pyvis.network import Network
-import streamlit.components.v1 as components
-from collections import Counter
-import emoji
-from collections import defaultdict
-
-import streamlit as st
-import pandas as pd
-import numpy as np
 import psycopg2
 import os
-import plotly.express as px
+import matplotlib.pyplot as plt
 import seaborn as sns
-from wordcloud import WordCloud
-from datetime import datetime
-from textblob import TextBlob
-from collections import defaultdict
+import plotly.express as px
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # 🔹 Load Environment Variables
@@ -41,25 +20,26 @@ DB_CONFIG = {
 }
 
 def connect_db():
+    """Establish and return a PostgreSQL database connection."""
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        return conn
+        return psycopg2.connect(**DB_CONFIG)
     except Exception as e:
         st.error(f"❌ Database connection failed: {e}")
         return None
 
 # 🔹 Fetch Messages from Database
 def fetch_messages(start_date=None, end_date=None):
+    """ Fetch messages from PostgreSQL with optional date filtering. """
     conn = connect_db()
     if not conn:
         return pd.DataFrame()
-    
+
     query = """
         SELECT 
             messages.id, 
             participants.name AS sender_name, 
             messages.content, 
-            to_timestamp(messages.timestamp_ms / 1000) AS message_timestamp
+            to_timestamp(messages.timestamp_ms / 1000) AT TIME ZONE 'UTC' AS message_timestamp
         FROM messages
         JOIN participants ON messages.sender_id = participants.id
         WHERE messages.content IS NOT NULL
@@ -67,53 +47,18 @@ def fetch_messages(start_date=None, end_date=None):
 
     params = []
     if start_date and end_date:
-        query += " AND to_timestamp(messages.timestamp_ms / 1000) BETWEEN %s AND %s"
+        query += " AND to_timestamp(messages.timestamp_ms / 1000) AT TIME ZONE 'UTC' BETWEEN %s AND %s"
         params = [start_date, end_date]
 
-    query += " ORDER BY messages.timestamp_ms DESC LIMIT 1000;"
+    query += " ORDER BY messages.timestamp_ms ASC;"
 
     df = pd.read_sql(query, conn, params=params)
     conn.close()
+
+    # ✅ Ensure message_timestamp is converted properly
+    df["message_timestamp"] = pd.to_datetime(df["message_timestamp"], utc=True)
+
     return df
-
-# 🔹 Fetch Reactions Data
-def fetch_reactions():
-    conn = connect_db()
-    if not conn:
-        return pd.DataFrame()
-
-    query = """
-        SELECT 
-            reactions.reaction, 
-            participants.name AS user
-        FROM reactions
-        JOIN participants ON reactions.actor_id = participants.id
-    """
-    
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
-
-# 🔹 Fetch Word Count Data
-def fetch_word_count():
-    conn = connect_db()
-    if not conn:
-        return {}
-
-    query = """
-        SELECT 
-            participants.name AS sender_name,
-            SUM(LENGTH(messages.content) - LENGTH(REPLACE(messages.content, ' ', '')) + 1) AS word_count
-        FROM messages
-        JOIN participants ON messages.sender_id = participants.id
-        WHERE messages.content IS NOT NULL
-        GROUP BY participants.name
-        ORDER BY word_count DESC;
-    """
-    
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return dict(zip(df["sender_name"], df["word_count"]))
 
 # 🔹 Streamlit UI Configuration
 st.set_page_config(page_title="🎨 Visualizations", layout="wide")
@@ -122,27 +67,30 @@ st.title("📊 Messenger Chat Visualizations")
 # 🔹 Sidebar Filters
 st.sidebar.header("📅 Date Filters")
 
-# Load data to get min/max dates
-df_init = fetch_messages()
-start_date = df_init['message_timestamp'].min() if not df_init.empty else datetime.today()
-end_date = df_init['message_timestamp'].max() if not df_init.empty else datetime.today()
+# ✅ Fetch all data first (for date selection)
+df_all = fetch_messages()
 
-date_range = st.sidebar.date_input("Select date range", [start_date, end_date])
+# ✅ Ensure data exists before applying filtering
+if not df_all.empty:
+    min_date = df_all['message_timestamp'].min().date()
+    max_date = df_all['message_timestamp'].max().date()
+else:
+    min_date, max_date = datetime.today().date(), datetime.today().date()
 
-# Fetch filtered data
-df_filtered = fetch_messages(date_range[0], date_range[1])
+# ✅ Selectable date range (Set valid range)
+date_range = st.sidebar.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-# # 🔹 Display Messages DataFrame
-# st.subheader("📝 Messages Data")
-# if not df_filtered.empty:
-#     st.dataframe(df_filtered[['sender_name', 'content', 'message_timestamp']])
-# else:
-#     st.warning("⚠️ No messages found in the selected date range.")
+# ✅ Convert selected dates to proper datetime format
+start_datetime = datetime.combine(date_range[0], datetime.min.time()).replace(tzinfo=None)
+end_datetime = datetime.combine(date_range[1], datetime.max.time()).replace(tzinfo=None) + timedelta(seconds=1)
+
+# ✅ Fetch filtered messages
+df_filtered = fetch_messages(start_datetime, end_datetime)
 
 # 🔹 Messages Over Time
 st.subheader("📊 Messages Over Time")
 df_filtered['date'] = df_filtered['message_timestamp'].dt.date
-rolling_avg = df_filtered.groupby('date').size().rolling(3).mean()
+rolling_avg = df_filtered.groupby('date').size().rolling(7, min_periods=1).mean()
 
 fig, ax = plt.subplots()
 rolling_avg.plot(kind='line', ax=ax, color='red', linewidth=3)
@@ -166,10 +114,63 @@ st.pyplot(fig)
 
 # 🌀 Reaction Distribution
 st.subheader("🌀 Reaction Distribution Per User")
+
+def fetch_reactions():
+    """Fetch reactions from the database."""
+    conn = connect_db()
+    if not conn:
+        return pd.DataFrame()
+
+    query = """
+        SELECT 
+            reactions.reaction, 
+            participants.name AS user
+        FROM reactions
+        JOIN participants ON reactions.actor_id = participants.id
+    """
+
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    return df
+
+def fetch_reactions():
+    """Fetch reactions from the database and fix encoding issues."""
+    conn = connect_db()
+    if not conn:
+        return pd.DataFrame()
+
+    query = """
+        SELECT 
+            reactions.reaction, 
+            participants.name AS user
+        FROM reactions
+        JOIN participants ON reactions.actor_id = participants.id
+    """
+
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    # ✅ Fix encoding issues
+    df['reaction'] = df['reaction'].astype(str).apply(lambda x: x.encode('latin1').decode('utf-8', 'ignore'))
+    df['user'] = df['user'].astype(str).apply(lambda x: x.encode('latin1').decode('utf-8', 'ignore'))
+
+    return df
+
 df_reactions = fetch_reactions()
 
 if not df_reactions.empty:
-    fig = px.sunburst(df_reactions, path=['reaction', 'user'], title="Reaction Breakdown", color_discrete_sequence=px.colors.qualitative.Dark24)
+    fig = px.sunburst(
+        df_reactions, 
+        path=['reaction', 'user'], 
+        title="🌀 Reaction Breakdown",
+        color_discrete_sequence=px.colors.qualitative.Dark24
+    )
+
+    # ✅ Fix Unicode in Labels
+    fig.update_traces(textinfo='label+percent entry')
+    fig.update_layout(uniformtext_minsize=10, uniformtext_mode='hide')
+
     st.plotly_chart(fig)
 
 # ⚡ Message Length Bubble Chart
@@ -184,6 +185,29 @@ st.plotly_chart(fig)
 
 # 📝 User Word Count Analysis
 st.subheader("📊 User Word Count Ranking")
+
+def fetch_word_count():
+    """Fetch word count per user from the database."""
+    conn = connect_db()
+    if not conn:
+        return {}
+
+    query = """
+        SELECT 
+            participants.name AS sender_name,
+            SUM(LENGTH(messages.content) - LENGTH(REPLACE(messages.content, ' ', '')) + 1) AS word_count
+        FROM messages
+        JOIN participants ON messages.sender_id = participants.id
+        WHERE messages.content IS NOT NULL
+        GROUP BY participants.name
+        ORDER BY word_count DESC;
+    """
+
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    return dict(zip(df["sender_name"], df["word_count"]))
+
 user_word_count = fetch_word_count()
 
 if user_word_count:
@@ -197,12 +221,16 @@ st.subheader("📚 Chat vs. Famous Authors' Word Count")
 total_chat_word_count = sum(user_word_count.values())
 
 famous_authors = {
-    "William Shakespeare": 884_647,
-    "J.K. Rowling": 1_084_170,
+    "William Shakespeare (Complete Works)": 884_647,
+    "J.K. Rowling (Harry Potter Series)": 1_084_170,
     "Leo Tolstoy (War and Peace)": 587_287,
-    "George R.R. Martin": 1_770_000,
-    "Stephen King": 471_485,
-    "J.R.R. Tolkien": 481_103
+    "George R.R. Martin (A Song of Ice and Fire)": 1_770_000,
+    "Stephen King (The Stand)": 471_485,
+    "J.R.R. Tolkien (Lord of the Rings)": 481_103,
+    "Fyodor Dostoevsky (The Brothers Karamazov)": 364_153,
+    "Jane Austen (Complete Works)": 681_520,
+    "Homer (The Iliad & The Odyssey)": 347_100,
+    "Charles Dickens (A Tale of Two Cities)": 135_420
 }
 
 comparison_df = pd.DataFrame(list(famous_authors.items()), columns=['Author', 'Word Count'])

@@ -9,18 +9,18 @@ load_dotenv()
 
 # Database connection settings
 DB_CONFIG = {
-    "dbname": os.getenv("DB_NAME", "messenger_data"),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "yourpassword"),  # Set in .env
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": os.getenv("DB_PORT", "5432")
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT")
 }
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Folder containing JSON files
-INPUT_FOLDER = "../data/messages/messages_dev/cleaned_messages/"
+INPUT_FOLDER = "/Users/carolinetwyman/Desktop/apps/puppygirlhackerpolycule_6868692056483270/data/messages/messages_dev/cleaned_messages/"
 
 def connect_db():
     """ Establish a connection to the PostgreSQL database. """
@@ -34,6 +34,9 @@ def connect_db():
 
 def load_json_files(folder):
     """ Load all JSON files in the folder. """
+    if not os.path.exists(folder):
+        logging.error(f"❌ Folder not found: {folder}")
+        exit(1)
     files = sorted([f for f in os.listdir(folder) if f.endswith(".json")])
     return [os.path.join(folder, file) for file in files]
 

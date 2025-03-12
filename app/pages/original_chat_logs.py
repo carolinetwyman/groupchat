@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 import os
-from datetime import datetime, date
 from dotenv import load_dotenv
 
 # Check if the user is authenticated
@@ -52,8 +51,8 @@ def check_table_exists():
     finally:
         conn.close()
 
-def fetch_messages(start_date=None, end_date=None):
-    """Fetch messages from PostgreSQL with optional date filtering."""
+def fetch_all_messages():
+    """Fetch all messages from PostgreSQL without date filtering."""
     conn = connect_db()
     if not conn:
         return pd.DataFrame()
@@ -69,19 +68,10 @@ def fetch_messages(start_date=None, end_date=None):
                 FROM messages m
                 JOIN participants p ON m.sender_id = p.id
                 WHERE m.content IS NOT NULL
-            """
-            
-            params = []
-            if start_date and end_date:
-                start_datetime = datetime.combine(start_date, datetime.min.time())  # Fix conversion
-                end_datetime = datetime.combine(end_date, datetime.max.time())
+                ORDER BY m.timestamp_ms DESC;
+            """  # Removed the LIMIT to get all data
 
-                query += " AND m.timestamp_ms BETWEEN %s AND %s"
-                params = [int(start_datetime.timestamp() * 1000), int(end_datetime.timestamp() * 1000)]
-
-            query += " ORDER BY m.timestamp_ms DESC LIMIT 100;"
-
-            cur.execute(query, params)
+            cur.execute(query)
             rows = cur.fetchall()
             colnames = [desc[0] for desc in cur.description]
             return pd.DataFrame(rows, columns=colnames)
@@ -94,30 +84,20 @@ def fetch_messages(start_date=None, end_date=None):
         conn.close()
 
 # Streamlit UI
-st.title("📊 Data Exploration - PostgreSQL")
+st.title("📊 Data Exploration - PostgreSQL (All-Time Data)")
 
 # Check if database table exists
 if not check_table_exists():
     st.error("❌ Database table 'messages' does not exist. Check your database connection.")
     st.stop()
 
-# Sidebar Filters
-st.sidebar.header("📅 Date Filters")
-
-# Load initial data to get min/max dates
-df_init = fetch_messages()
-start_date = df_init['message_timestamp'].min().date() if not df_init.empty else date.today()
-end_date = df_init['message_timestamp'].max().date() if not df_init.empty else date.today()
-
-date_range = st.sidebar.date_input("Select date range", [start_date, end_date])
-
-# Fetch filtered data
-df_filtered = fetch_messages(date_range[0], date_range[1])
+# Fetch all-time messages
+df_all_time = fetch_all_messages()
 
 # Display Messages
-st.subheader("📝 Messages DataFrame")
-if not df_filtered.empty:
-    st.dataframe(df_filtered[['sender_name', 'content', 'message_timestamp']])
-    st.success("✅ Data loaded successfully!")
+st.subheader("📝 Messages DataFrame (All Time)")
+if not df_all_time.empty:
+    st.dataframe(df_all_time[['sender_name', 'content', 'message_timestamp']])
+    st.success("✅ All-time data loaded successfully!")
 else:
-    st.warning("⚠️ No messages found for the selected date range.")
+    st.warning("⚠️ No messages found in the database.")
